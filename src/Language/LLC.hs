@@ -322,5 +322,4 @@ llz f = llam (\z -> letOne z f)
 compose ::
   (LLC repr) =>
   repr False i i ((b -<> c) -<> (a -<> b) -<> a -<> c)
-compose = undefined
---compose = llam (\g -> llam (\f -> llam (\x -> g ^ (f ^ x))))
+compose = llam (\g -> llam (\f -> llam (\x -> g ^ (f ^ x))))
