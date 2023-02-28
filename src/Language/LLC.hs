@@ -1,10 +1,11 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeepSubsumption #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -13,35 +14,34 @@
 
 module Language.LLC where
 
+import Data.Kind (Type)
 import Eq
 import Prelude hiding ((+), (<*>), (^))
 
 --
 -- Linear type constructors
 --
-data a -<> b
+newtype a -<> b = Lolli {unLolli :: a -> b}
 
-data a ->> b
+newtype a ->> b = Arrow {unArrow :: a -> b}
 
-data Bang a
+newtype Bang a = Bang {unBang :: a}
 
 data Top
 
 data a & b
 
-data One
+data One = One
 
-data a * b
+data a * b = Tensor a b
 
-data a + b
+data a + b = Inl a | Inr b
 
 data Zero
 
-data Base a
+newtype Base a = Base a
 
-infixr 5 -<>
-
-infixr 5 ->>
+infixr 5 -<>, ->>
 
 --
 -- linear variable v in Haskell context
@@ -64,7 +64,7 @@ type UVar repr a =
 --
 -- The syntax of LLC.
 --
-class LLC (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) where
+class LLC (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) where
   llam ::
     (VarOk tf x, v ~ Length i) =>
     ( LVar repr v a ->
@@ -123,13 +123,13 @@ class LLC (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) where
   (<*>) ::
     repr tf0 i h a ->
     repr tf1 h o b ->
-    repr (Or tf0 tf1) i o (a (*) b)
+    repr (Or tf0 tf1) i o (a * b)
   letStar ::
     ( VarOk tf1 x,
       VarOk tf1 y,
       v ~ Length i
     ) =>
-    repr tf0 i h (a (*) b) ->
+    repr tf0 i h (a * b) ->
     ( LVar repr v a ->
       LVar repr (S v) b ->
       repr
@@ -314,7 +314,7 @@ llp ::
       (x : y : Nothing : o)
       c
   ) ->
-  repr tf i (o :: [Maybe Nat]) ((a (*) b) -<> c)
+  repr tf i (o :: [Maybe Nat]) ((a * b) -<> c)
 llp f = llam (\p -> letStar p f)
 
 llz f = llam (\z -> letOne z f)
@@ -322,4 +322,5 @@ llz f = llam (\z -> letOne z f)
 compose ::
   (LLC repr) =>
   repr False i i ((b -<> c) -<> (a -<> b) -<> a -<> c)
-compose = llam (\g -> llam (\f -> llam (\x -> g ^ (f ^ x))))
+compose = undefined
+--compose = llam (\g -> llam (\f -> llam (\x -> g ^ (f ^ x))))
