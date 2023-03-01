@@ -7,6 +7,8 @@
 
 module Language.ST where
 
+import Data.Kind (Type)
+
 -- session types
 data t <!> s
 data s1 <++> s2
@@ -36,7 +38,7 @@ type family Flip (p :: Polarity) :: Polarity where
   Flip I = O
 
 -- duality
-type family Dual s :: *
+type family Dual s :: Type
 type instance Dual (t <!> s)    = t <?> Dual s
 type instance Dual EndOut       = EndIn
 type instance Dual (t <?> s)    = t <!> Dual s
