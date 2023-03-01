@@ -3,11 +3,17 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: synchronous-channels-0.2@sha256:b46c98ed4cbe5038d7ca0911e2c0c5fdae41f7bcfb1648c6f469d80c152ab4af,705
+    pantry-tree:
+      sha256: a3dc2d6d9cf8b766eb91758e2ffe2c706df336e1f2bf66ec935fc7ca6eada25b
+      size: 243
+  original:
+    hackage: synchronous-channels-0.2
 snapshots:
 - completed:
-    sha256: af5d667f6096e535b9c725a72cffe0f6c060e0568d9f9eeda04caee70d0d9d2d
-    size: 649133
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/20/12.yaml
-  original:
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/20/12.yaml
+    sha256: 428ec8d5ce932190d3cbe266b9eb3c175cd81e984babf876b64019e2cbe4ea68
+    size: 590100
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/28.yaml
+  original: lts-18.28
