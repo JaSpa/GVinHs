@@ -25,9 +25,9 @@ newtype a ->> b = Arrow {unArrow :: a -> b}
 
 newtype Bang a = Bang {unBang :: a}
 
-data Top
+type Top = ()
 
-data a & b
+type a & b = (a,b)
 
 data One = One
 

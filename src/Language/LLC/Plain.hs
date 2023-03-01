@@ -84,7 +84,7 @@ defnRec x = x
 --
 -- Linear Lists
 --
-newtype MyListF a lst = MLF {unMLF :: One + a (*) lst}
+newtype MyListF a lst = MLF {unMLF :: One + (a * lst)}
 
 type MyList a = Mu (MyListF a)
 

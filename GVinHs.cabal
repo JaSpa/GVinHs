@@ -13,7 +13,7 @@ extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
 common warnings
-    ghc-options: -Wall -Wno-unticked-promoted-constructors -Wno-missing-signatures
+    ghc-options: -w -Wno-unticked-promoted-constructors -Wno-missing-signatures
 
 library
     import:           warnings
@@ -40,6 +40,6 @@ library
 
     -- other-modules:
     -- other-extensions:
-    build-depends:    base ^>=4.9.0.0, mtl
+    build-depends:    base ^>=4.9.0.0, mtl, random, synchronous-channels
     hs-source-dirs:   src
     default-language: Haskell2010
