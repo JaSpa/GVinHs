@@ -16,6 +16,7 @@
 
 module Language.GV.CPS where
 
+import Data.Kind (Type)
 import Prelude hiding ((^), (<*>), (+))
 
 import Language.LLC
@@ -35,17 +36,17 @@ newtype CEndOut r     = CEndOut {unCEndOut :: r}
 newtype CIn s r = CIn {unCIn :: s r -> r}
 
 -- return type of a continuation monad
-type family Ret (m :: * -> *) where
+type family Ret (m :: Type -> Type) where
   Ret (Cont r) = r
 
 -- Monadic/CPS translation of a session type
-newtype CST (s :: *) (m :: * -> *) = CST {unCST :: CPS s (Ret m)}
+newtype CST (s :: Type) (m :: Type -> Type) = CST {unCST :: CPS s (Ret m)}
 
-type family CPS (s :: *) :: * -> *
+type family CPS (s :: Type) :: Type -> Type
 type instance CPS s = CPS' (Pol s) s
 
 
-type family CPS' (p :: Polarity) (s :: *) :: * -> *
+type family CPS' (p :: Polarity) (s :: Type) :: Type -> Type
 type instance CPS' O (t <!> s)    = COutput (Mon t) (CPS (Dual s))
 type instance CPS' O EndOut       = CEndOut
 type instance CPS' O (s1 <++> s2) = CPS (ST (Dual s1) + ST (Dual s2) <!> EndOut)

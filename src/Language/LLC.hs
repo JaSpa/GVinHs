@@ -8,11 +8,13 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE NoStarIsType #-}
 
 -- Based on Jeff Polakow, "Embedding a Full Linear Lambda Calculus in Haskell"
 
 module Language.LLC where
 
+import Data.Kind (Type)
 import Eq
 import Prelude hiding ((+), (<*>), (^))
 
@@ -62,7 +64,7 @@ type UVar repr a =
 --
 -- The syntax of LLC.
 --
-class LLC (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) where
+class LLC (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) where
   llam ::
     (VarOk tf x, v ~ Length i) =>
     ( LVar repr v a ->

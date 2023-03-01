@@ -7,16 +7,17 @@
 
 module Language.LLC.Monadic where
 
+import Data.Kind (Type)
 import Language.LLC
 
-newtype MFun (a :: (* -> *) -> *) (b :: (* -> *) -> *) (m :: * -> *)  = MFun  {unMFun  :: a m -> m (b m)}
+newtype MFun (a :: (Type -> Type) -> Type) (b :: (Type -> Type) -> Type) (m :: Type -> Type) = MFun {unMFun  :: a m -> m (b m)}
 data    MOne m      = MOne
 data    MZero m     = MZero
 newtype MProd a b m = MProd {unMProd :: (a m, b m)}
 newtype MSum a b m  = MSum  {unMSum  :: Either (a m) (b m)}
 newtype MBase a m   = MBase {unMFBase :: a}
 
-type family Mon (t :: *) :: (* -> *) -> *
+type family Mon (t :: Type) :: (Type -> Type) -> Type
 type instance Mon (a -<> b) = MFun (Mon a) (Mon b)
 type instance Mon (a ->> b) = MFun (Mon a) (Mon b)
 type instance Mon (Bang a)  = Mon a
@@ -31,7 +32,7 @@ type instance Mon (Base a)  = MBase a
 --
 -- A monadic evaluator
 --
-newtype RM (m :: * -> *) (tf::Bool) (hi::[Maybe Nat]) (ho::[Maybe Nat]) a = RM {unRM :: m (Mon a m)}
+newtype RM (m :: Type -> Type) (tf::Bool) (hi::[Maybe Nat]) (ho::[Maybe Nat]) a = RM {unRM :: m (Mon a m)}
 
 instance Monad m => LLC (RM m) where
     llam f = RM (return (MFun (\x -> unRM (f (RM (return x))))))

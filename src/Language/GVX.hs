@@ -14,15 +14,16 @@
 
 module Language.GVX where
 
+import Data.Kind (Type)
 import Prelude hiding ((^), (<*>), (+))
 
 import Language.LLC
 import Language.ST
 import Language.GV
 
-data AP (s :: *)
+data AP (s :: Type)
 
-class (GV c repr) => GVX (ap :: * -> *) (c :: * -> *) (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) | repr -> c ap
+class (GV c repr) => GVX (ap :: Type -> Type) (c :: Type -> Type) (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) | repr -> c ap
     where amb     :: repr tf i o a -> repr tf i o a -> repr tf i o a
           spawn   :: repr tf i o (One -<> One  )    -> repr tf i o One
           close   :: repr tf i o (c EndOut)         -> repr tf i o One

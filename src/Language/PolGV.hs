@@ -10,6 +10,7 @@
 
 module Language.PolGV where
 
+import Data.Kind (Type)
 import Prelude hiding ((^), (<*>), (+))
 
 import Language.LLC
@@ -23,7 +24,10 @@ data InShift s
 type instance Dual (OutShift s) = InShift (Dual s)
 type instance Dual (InShift s)  = OutShift (Dual s)
 
-class GV (os :: * -> *) (is :: * -> *) (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) | repr -> os is where
+class
+  GV (os :: Type -> Type) (is :: Type -> Type) (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type)
+    | repr -> os is
+ where
   send :: repr tf i h t -> repr tf h o (os (t <!> s)) -> repr tf i o (os s)
   recv :: repr tf i o (is (t <?> s)) ->                  repr tf i o (t * is s)
   wait :: repr tf i o (is EndIn) ->                      repr tf i o One
