@@ -14,6 +14,7 @@
 
 module Language.PolGV.CPS where
 
+import Data.Kind (Type)
 import Prelude hiding ((^), (<*>), (+))
 
 import Language.LLC
@@ -26,8 +27,8 @@ import Control.Monad
 import Control.Monad.Cont
 
 -- Proxies for session typed channels
-data IST (s :: *)
-data OST (s :: *)
+data IST (s :: Type)
+data OST (s :: Type)
 
 -- CPS transformation for session types
 newtype COutput t s r = COutput {unCOutput :: t (Cont r) -> s r -> r}
@@ -36,22 +37,22 @@ newtype CEndOut r     = CEndOut {unCEndOut :: r}
 newtype CNegative s r = CNeg { unCNeg :: CPSO (Dual s) r -> r }
 
 -- return type of a continuation monad
-type family Ret (m :: * -> *) where
+type family Ret (m :: Type -> Type) where
   Ret (Cont r) = r
 
 -- Monadic/CPS translation of a session types
-data OutC (s :: *) (m :: * -> *) where
+data OutC (s :: Type) (m :: Type -> Type) where
   OutC :: Dual (Dual s) ~ s => CPSO s (Ret m) -> OutC s m
-data InC  (s :: *) (m :: * -> *) where
+data InC  (s :: Type) (m :: Type -> Type) where
   InC :: Dual (Dual s) ~ s => CPSI s (Ret m) -> InC s m
 
-type family CPSO (s :: *) :: * -> *
+type family CPSO (s :: Type) :: Type -> Type
 type instance CPSO (t <!> s)    = COutput (Mon t) (CPSI (Dual s))
 type instance CPSO (s1 <++> s2) = CPSO ((IST (Dual s1) + IST (Dual s2)) <!> EndOut)
 type instance CPSO (OutShift s) = CPSO (OST (Dual s) <!> EndOut)
 type instance CPSO EndOut       = CEndOut
 
-type family CPSI (s :: *) :: * -> *
+type family CPSI (s :: Type) :: Type -> Type
 type instance CPSI s            = CNegative s
 
 type instance Mon (IST s)       = InC s

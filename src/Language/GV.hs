@@ -12,6 +12,7 @@
 
 module Language.GV where
 
+import Data.Kind (Type)
 import Prelude hiding ((^), (<*>), (+))
 
 import Language.LLC
@@ -19,7 +20,7 @@ import Language.ST
 import Data.Proxy
 
 -- default wrapper for session types (singleton type)
-data ST (s :: *) where
+data ST (s :: Type) where
   SOutput :: Session s => Proxy t -> ST s -> ST (t <!> s)
   SEndOut :: ST EndOut
   SInput :: Session s => Proxy t -> ST s -> ST (t <?> s)
@@ -27,7 +28,7 @@ data ST (s :: *) where
   SChoose :: (Session s1, Session s2) => ST s1 -> ST s2 -> ST (s1 <++> s2)
   SOffer :: (Session s1, Session s2) => ST s1 -> ST s2 -> ST (s1 <&&> s2)
 
-class (Dual (Dual s) ~ s, Flip (Pol s) ~ Pol (Dual s)) => Session (s :: *) where
+class (Dual (Dual s) ~ s, Flip (Pol s) ~ Pol (Dual s)) => Session (s :: Type) where
   polarity :: SPolarity s
   sing :: ST s
 instance Session s => Session (t <!> s) where
@@ -49,9 +50,9 @@ instance (Session s1, Session s2) => Session (s1 <&&> s2) where
   polarity = SI
   sing =  SOffer sing sing
 
-type DualSession (s :: *) = (Session s, Session (Dual s))
+type DualSession (s :: Type) = (Session s, Session (Dual s))
 
-class GV (st :: * -> *) (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) | repr -> st where
+class GV (st :: Type -> Type) (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) | repr -> st where
   send :: DualSession s => repr tf i h t -> repr tf h o (st (t <!> s)) -> repr tf i o (st s)
   recv :: DualSession s => repr tf i o (st (t <?> s)) ->                  repr tf i o (t * st s)
   wait :: repr tf i o (st EndIn) ->                                       repr tf i o One

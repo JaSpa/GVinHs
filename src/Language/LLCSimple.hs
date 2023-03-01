@@ -17,6 +17,7 @@ module Language.LLCSimple where
 -- this version omits Top and Zero and hence the need for a flag to
 -- indicate whether we can dump the linear context (we never can)
 
+import Data.Kind (Type)
 import Prelude hiding((^), (<*>), (+))
 import Eq
 
@@ -58,8 +59,8 @@ type UVar repr a =
 --
 class LLC (repr :: [Maybe Nat]
                 -> [Maybe Nat]
-                -> *
-                -> *
+                -> Type
+                -> Type
                ) where
   llam
     :: (v ~ Length i)

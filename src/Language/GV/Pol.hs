@@ -11,6 +11,7 @@
 
 module Language.GV.Pol where
 
+import Data.Kind (Type)
 import Prelude hiding ((^), (<*>), (+))
 
 import Language.LLC
@@ -28,13 +29,13 @@ import Data.Proxy
 import GVexamples
 
 -- representation for polarisation
-newtype RP (os :: * -> *) (is :: * -> *)
-           (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *)
+newtype RP (os :: Type -> Type) (is :: Type -> Type)
+           (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type)
            (tf::Bool) (hi::[Maybe Nat]) (ho::[Maybe Nat]) a =
   RP {unRP :: (LLC repr, P.GV os is repr, Conv repr) => repr tf hi ho a}
 
 -- session type representation for polarisation
-data STP (os :: * -> *) (is :: * -> *) (s :: *) where
+data STP (os :: Type -> Type) (is :: Type -> Type) (s :: Type) where
   STPO :: Pol s ~ O => os (SToO s) -> STP os is s
   STPI :: Pol s ~ I => is (SToI s) -> STP os is s
 
@@ -46,19 +47,19 @@ unSTPI (STPI i) = i
 
 type instance Mon (STP os is s) = Mon' (Pol s) (STP os is s)
 
-type family Mon' (p :: Polarity) (a :: *) :: (* -> *) -> *
+type family Mon' (p :: Polarity) (a :: Type) :: (Type -> Type) -> Type
 type instance Mon' O (STP os is s) = Mon (os (SToO s))
 type instance Mon' I (STP os is s) = Mon (is (SToI s))
 
 -- conversion between GV and polarised GV representations
-class Conv (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) where
+class Conv (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) where
   stoo :: Pol s ~ O => repr tf hi ho (STP os is s) -> repr tf hi ho (os (SToO s))
   stoi :: Pol s ~ I => repr tf hi ho (STP os is s) -> repr tf hi ho (is (SToI s))
   otos :: Pol s ~ O => repr tf hi ho (os (SToO s)) -> repr tf hi ho (STP os is s)
   itos :: Pol s ~ I => repr tf hi ho (is (SToI s)) -> repr tf hi ho (STP os is s)
 
 -- dualisation commutes with the transformations
-data DualTrans (s :: *) where
+data DualTrans (s :: Type) where
   DualTrans :: (Dual (SToI s) ~ SToO (Dual s),
                 Dual (SToO s) ~ SToI (Dual s),
                 Dual (SToI (Dual s)) ~ SToO s,
@@ -107,41 +108,41 @@ instance Conv R where
 -- These are unnecessary and the identity
 
 -- -- polarised output to GV
--- type family OToS (o :: *) :: *
+-- type family OToS (o :: Type) :: Type
 -- type instance OToS (t <!> o )   = t <!> OToS o
 -- type instance OToS (EndOut)     = EndOut
 -- type instance OToS (o1 <++> o2) = OToS o1 <++> OToS o2
 
 -- -- polarised input to GV
--- type family IToS (i :: *) :: *
+-- type family IToS (i :: Type) :: Type
 -- type instance IToS (t <!> i)    = t <?> IToS i
 -- type instance IToS (EndIn)      = EndIn
 -- type instance IToS (i1 <&&> i2) = IToS i1 <&&> IToS i2
 
 -- session to polarised output
-type family SToO (s :: *) :: *
+type family SToO (s :: Type) :: Type
 type instance SToO s = SToOShift (Pol s) s
 
-type family SToOShift (p :: Polarity) (s :: *) :: *
+type family SToOShift (p :: Polarity) (s :: Type) :: Type
 type instance SToOShift O s = OSToO s
 type instance SToOShift I s = P.OutShift (ISToI s)
 
 -- output session to polarised output session
-type family OSToO (s :: *) :: *
+type family OSToO (s :: Type) :: Type
 type instance OSToO (t <!> s)    = t <!> SToO s
 type instance OSToO EndOut       = EndOut
 type instance OSToO (s1 <++> s2) = SToO s1 <++> SToO s2
 
 -- session to polarised input
-type family SToI (s :: *) :: *
+type family SToI (s :: Type) :: Type
 type instance SToI s = SToIShift (Pol s) s
 
-type family SToIShift (p :: Polarity) (s :: *) :: *
+type family SToIShift (p :: Polarity) (s :: Type) :: Type
 type instance SToIShift I s = ISToI s
 type instance SToIShift O s = P.InShift (OSToO s)
 
 -- input session to polarised input session
-type family ISToI (s :: *) :: *
+type family ISToI (s :: Type) :: Type
 type instance ISToI (t <?> s)    = t <?> SToI s
 type instance ISToI EndIn        = EndIn
 type instance ISToI (s1 <&&> s2) = SToI s1 <&&> SToI s2
