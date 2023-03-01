@@ -11,16 +11,15 @@
 
 module Language.ClosedGV where
 
-import Data.Kind (Type)
 import Data.Proxy
 import Language.LLC
 import Prelude hiding ((+), (<*>), (^))
 
 -- session types
 data Sess
-  = forall (t :: Type). Output t Sess
+  = forall (t :: *). Output t Sess
   | EndOut
-  | forall (t :: Type). Input t Sess
+  | forall (t :: *). Input t Sess
   | EndIn
   | Choose Sess Sess
   | Offer Sess Sess
@@ -120,7 +119,7 @@ type instance Dual (s1 <&&> s2) = Dual s1 <++> Dual s2
 
 type DualSession (s :: Sess) = (Session s, Session (Dual s))
 
-class GV (st :: Sess -> Type) (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) | repr -> st where
+class GV (st :: Sess -> *) (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) | repr -> st where
   send :: DualSession s => repr tf i h t -> repr tf h o (st (t <!> s)) -> repr tf i o (st s)
   recv :: DualSession s => repr tf i o (st (t <?> s)) -> repr tf i o (t * st s)
   wait :: repr tf i o (st EndIn) -> repr tf i o One

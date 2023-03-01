@@ -1,6 +1,5 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeepSubsumption #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -14,7 +13,6 @@
 
 module Language.LLC where
 
-import Data.Kind (Type)
 import Eq
 import Prelude hiding ((+), (<*>), (^))
 
@@ -64,7 +62,7 @@ type UVar repr a =
 --
 -- The syntax of LLC.
 --
-class LLC (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) where
+class LLC (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) where
   llam ::
     (VarOk tf x, v ~ Length i) =>
     ( LVar repr v a ->

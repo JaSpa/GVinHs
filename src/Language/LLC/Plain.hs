@@ -9,7 +9,6 @@
 
 module Language.LLC.Plain where
 
-import Data.Kind (Type)
 import Language.LLC
 import Prelude hiding ((+), (<*>), (^))
 
@@ -19,7 +18,7 @@ import Prelude hiding ((+), (<*>), (^))
 --
 newtype R (tf :: Bool) (hi :: [Maybe Nat]) (ho :: [Maybe Nat]) a = R {unR :: a}
 
-instance LLC (R :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) where
+instance LLC (R :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) where
   llam f = R $ Lolli $ \x -> unR (f (R x))
   f ^ x = R $ unLolli (unR f) (unR x)
 
@@ -64,12 +63,12 @@ eval = unR
 --
 newtype Mu a = Mu {unMu :: a (Mu a)}
 
-class LLCRec (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) where
+class LLCRec (repr :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) where
   wrap :: (b -> a (Mu a)) -> repr tf i o b -> repr tf i o (Mu a)
   unwrap :: (a (Mu a) -> b) -> repr tf i o (Mu a) -> repr tf i o b
   fix :: ((forall h. repr False h h a) -> repr tf h h a) -> repr tf h h a
 
-instance LLCRec (R :: Bool -> [Maybe Nat] -> [Maybe Nat] -> Type -> Type) where
+instance LLCRec (R :: Bool -> [Maybe Nat] -> [Maybe Nat] -> * -> *) where
   wrap f = R . Mu . f . unR
   unwrap f = R . f . unMu . unR
   fix f = f (R $ unR $ fix f)
